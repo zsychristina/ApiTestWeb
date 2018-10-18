@@ -720,6 +720,7 @@
                     if (this.caseData.validate[this.caseData.validate.length - 1]['key'] || this.caseData.validate[this.caseData.validate.length - 1]['value']) {
                         this.addTableList('validate')
                     }
+
                 },
                 deep: true
             },
