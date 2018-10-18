@@ -125,7 +125,7 @@
     }
 </script>
 
-<style>
+<style scoped>
     .el-header {
         background-color: #717275;
         color: #ffffff;
