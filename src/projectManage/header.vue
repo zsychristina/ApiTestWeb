@@ -1,34 +1,19 @@
 <template>
-    <div class="caseHeader">
-        <el-container>
-            <el-container>
-                <el-header style="height: 40px;">
-                    <div style="float: left;">
-                        <el-breadcrumb separator-class="el-icon-arrow-right" >
-                            <el-breadcrumb-item
-                                    v-for="(item, index) in title"
-                                    :key="index"
-                            >
-                                {{title[index]}}
-                            </el-breadcrumb-item>
-
-                        </el-breadcrumb>
-                    </div>
-                    <el-dropdown style="float:right;line-height:20px;top:12px;color: rgb(255, 255, 255);" @command="logOut" >
-                        <span class="el-dropdown-link">{{userName}}<i
-                                class="el-icon-arrow-down el-icon--right"></i></span>
-                        <el-dropdown-menu slot="dropdown" style="line-height:10px">
-                            <el-dropdown-item command="a">退出系统</el-dropdown-item>
-                            <el-dropdown-item command="b">个人设置</el-dropdown-item>
-                        </el-dropdown-menu>
-                    </el-dropdown>
-                </el-header>
-
-                <!--<el-footer style="height: 30px;">-->
-                <!--<span class="demonstration">author</span>-->
-                <!--</el-footer>-->
-            </el-container>
-        </el-container>
+    <div :class="$style.caseHeader">
+        <el-breadcrumb separator-class="el-icon-arrow-right" :class="$style.left">
+            <el-breadcrumb-item v-for="(item, index) in title" :key="index">
+                {{title[index]}}
+            </el-breadcrumb-item>
+        </el-breadcrumb>
+        <el-dropdown @command="logOut" :class="$style.right">
+                        <span class="el-dropdown-link">{{userName}}
+                            <i class="el-icon-arrow-down el-icon--right"></i>
+                        </span>
+            <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="a">退出系统</el-dropdown-item>
+                <el-dropdown-item command="b">个人设置</el-dropdown-item>
+            </el-dropdown-menu>
+        </el-dropdown>
     </div>
 </template>
 
@@ -72,7 +57,7 @@
 
             showTitle(path) {
                 if (path === '/manage/projectManage') {
-                    this.title = ['项目管理', '项目']
+                    this.title = ['接口管理', '项目管理']
                 }
                 else if (path === '/manage/modelManage') {
                     this.title = ['接口管理', '接口模块']
@@ -125,28 +110,30 @@
     }
 </script>
 
-<style scoped>
-    .el-header {
-        background-color: #717275;
-        color: #ffffff;
-        text-align: center;
-        line-height: 60px;
-    }
-    .el-breadcrumb__inner {
-        color: rgb(255, 255, 255);
-    }
-    .el-breadcrumb__item:last-child .el-breadcrumb__inner, .el-breadcrumb__item:last-child .el-breadcrumb__inner a, .el-breadcrumb__item:last-child .el-breadcrumb__inner a:hover, .el-breadcrumb__item:last-child .el-breadcrumb__inner:hover{
-        color: rgb(255, 255, 255);
-    }
-    /*.el-dropdown {*/
-    /*vertical-align: top;*/
-    /*}*/
+<style lang="scss" module>
+    .caseHeader {
+        width: 100%;
+        height: 60px;
+        border-bottom: 1px solid #ccc;
 
-    /*.el-dropdown + .el-dropdown {*/
-    /*margin-left: 15px;*/
-    /*}*/
+        &::after {
+            content: "";
+            display: block;
+            clear: both;
+            visibility: hidden;
+        }
 
-    /*.el-icon-arrow-down {*/
-    /*font-size: 12px;*/
-    /*}*/
+        .left {
+            float: left;
+            height: 60px;
+            line-height: 60px;
+        }
+        .right {
+            float: right;
+            height: 60px;
+            line-height: 60px;
+        }
+    }
+
+
 </style>
