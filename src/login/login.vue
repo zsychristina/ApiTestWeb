@@ -1,102 +1,75 @@
 <template>
-    <div class="test" style="text-align:center;">
-        <!--<img src="../assets/logo.png">-->
-        <div :style="note">
-            <el-form :model="caseData"
-                     style="position: absolute;top: 0;right: 0;bottom: 0;left: 0;margin: auto;width: 480px;height: 380px;
-                     background-color:rgba(0, 161, 255, 0.3);padding:50px 40px;border-radius:10px;">
-                <div style="margin-bottom:10px;font-size: 30px;color:#bfc4cc">测试平台</div>
-                <el-form-item prop="num">
-                    <el-input v-model="caseData.username" placeholder="请输入账号" style="width: 400px;">
-                    </el-input>
-                </el-form-item>
-                <el-form-item
-                        prop="desc">
-                    <el-input v-model="caseData.password" type="password" placeholder="请输入密码" style="width: 400px;">
-                    </el-input>
-                </el-form-item>
+    <div :class="$style.loginPane">
+        <div :class="$style.title">美味测试平台</div>
+        <el-form :model="userInfo" :rules="rules" ref="loginForm">
+            <el-form-item prop="username">
+                <el-input v-model="userInfo.username" placeholder="账号" size="medium"></el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+                <el-input v-model="userInfo.password" type="password" placeholder="密码" size="medium"></el-input>
+            </el-form-item>
 
-                <el-form-item>
-                    <el-button type="primary"
-                               @click.native="login()" size="small">登录
-                    </el-button>
-                    <!--<el-button type="primary"-->
-                    <!--@click.native="loGout()" size="small">登出-->
-                    <!--</el-button>-->
-                    <el-button type="primary"
-                               @click="centerDialogVisible = true" size="small">注册
-                    </el-button>
+            <el-form-item>
+                <el-button type="primary" @click.native="submitForm()" size="medium" style="width: 100%">登录</el-button>
+                <!--<el-button type="primary"-->
+                <!--@click="centerDialogVisible = true" size="small">注册-->
+                <!--</el-button>-->
+            </el-form-item>
+        </el-form>
+        <el-dialog
+                title="注册"
+                :visible.sync="centerDialogVisible"
+                width="30%"
+                center
+        >
+            <el-form :model="userInfo">
+
+                <el-form-item label="名字" :label-width="userInfo.formLabelWidth">
+                    <el-input v-model="userInfo.name" auto-complete="off">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="账号" :label-width="userInfo.formLabelWidth"
+                              prop="num">
+                    <el-input v-model.number="userInfo.username" auto-complete="off">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="密码" :label-width="userInfo.formLabelWidth"
+                              prop="desc">
+                    <el-input v-model="userInfo.password" auto-complete="off">
+                    </el-input>
                 </el-form-item>
             </el-form>
-            <el-dialog
-                    title="注册"
-                    :visible.sync="centerDialogVisible"
-                    width="30%"
-                    center
-                    >
-                <el-form :model="caseData"
-                         >
+            <span slot="footer" class="dialog-footer">
+                    <el-button @click="centerDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click.native="register()">确 定</el-button>
+                </span>
+        </el-dialog>
 
-                    <el-form-item label="名字" :label-width="caseData.formLabelWidth"
-                    >
-                        <el-input v-model="caseData.name" auto-complete="off">
-                        </el-input>
-                    </el-form-item>
-                    <el-form-item label="账号" :label-width="caseData.formLabelWidth"
-                                  prop="num"
-                    >
-                        <el-input v-model.number="caseData.username" auto-complete="off">
-                        </el-input>
-                    </el-form-item>
-                    <el-form-item label="密码" :label-width="caseData.formLabelWidth"
-                                  prop="desc">
-                        <el-input v-model="caseData.password" auto-complete="off">
-                        </el-input>
-                    </el-form-item>
-                </el-form>
-                <span slot="footer" class="dialog-footer">
-    <el-button @click="centerDialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click.native="register()">确 定</el-button>
-  </span>
-            </el-dialog>
-        </div>
     </div>
 
 </template>
 
 <script>
-    import * as types from '../store/types'
-    import img from '../assets/login_background.png'
+    import * as types from '../store/types';
+    import {REGISTERAPI, LOGINAPI} from "../api.js";
 
     export default {
         name: 'test',
         data() {
             return {
-                centerDialogVisible:false,
-                img: img,
-                note: {
-                    backgroundImage: 'url(' + img + ')',
-                    backgroundRepeat: "no-repeat",
-                    backgroundSize: 'cover',
-                    minHeight: '930px',
-                    // backgroundPosition: "center",
-                    // backgroundAttachment: "fixed",
-                },
-                // background: url("../assets/login_background.png"),
-                token: '',
-                caseData: {
-                    id: '',
-                    modelFormVisible: false,
-                    project: '',
-                    method: '',
+                centerDialogVisible: false,
+                userInfo: {
                     name: '',
                     username: '',
-                    formLabelWidth: '120px',
                     password: '',
-                    header: [],
-                    variable: [],
-                    extract: [],
-                    validate: [],
+                },
+                rules: {
+                    username: [
+                        {required: true, message: '请输入账号', trigger: 'blur'}
+                    ],
+                    password: [
+                        {required: true, message: '请输入密码', trigger: 'blur'}
+                    ]
                 }
             };
         },
@@ -104,11 +77,20 @@
             this.$store.commit(types.TITLE, 'Login');
         },
         methods: {
+            submitForm() {
+                this.$refs["loginForm"].validate((valid) => {
+                    if (valid) {
+                        this.login();
+                    } else {
+                        return false;
+                    }
+                });
+            },
             register() {
-                this.$axios.post('/api/api/register', {
-                    'name': this.caseData.name,
-                    'username': this.caseData.username,
-                    'password': this.caseData.password,
+                this.$axios.post(REGISTERAPI, {
+                    'name': this.userInfo.name,
+                    'username': this.userInfo.username,
+                    'password': this.userInfo.password,
                 }).then((response) => {
                         if (response.data['status'] === 0) {
                             this.$message({
@@ -129,9 +111,9 @@
                 )
             },
             login() {
-                this.$axios.post('/api/api/login', {
-                    'username': this.caseData.username,
-                    'password': this.caseData.password,
+                this.$axios.post(LOGINAPI, {
+                    'username': this.userInfo.username,
+                    'password': this.userInfo.password,
                 }).then((response) => {
                         if (response.data['status'] === 0) {
                             this.$message({
@@ -154,20 +136,29 @@
                     }
                 );
 
-            },
-            loGout() {
-                console.log(this.$store.state.token);
-                this.$store.commit(types.LOGOUT);
-                this.$router.push({path: 'login'});
-            },
-            handleSelect(item) {
-                console.log(item);
             }
         },
 
     }
 </script>
 
-<style>
-
+<style lang="scss" module>
+    .loginPane {
+        .title {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            line-height: 1.5;
+            color: rgba(0, 0, 0, .65);
+            font-family: Monospaced Number, Chinese Quote, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif;
+        }
+        width: 300px;
+        height: 250px;
+        border: 1px solid transparent;
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 </style>
