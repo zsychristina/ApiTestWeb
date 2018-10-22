@@ -1,27 +1,23 @@
 <template>
-  <div id="app">
-    <router-view></router-view>
-  </div>
+    <div id="app">
+        <router-view></router-view>
+    </div>
 </template>
 
 <script>
-    export default {
-        name: 'app',
-        data() {
-            return {
-            }
-        },
-        methods: {
 
-        },
-        mounted() {
-        },
-    }
 </script>
 
 <style>
-  .scrollbarList {
-    max-height: 700px;
-  }
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+
+    #app {
+        height: 100%;
+        width: 100%;
+    }
 
 </style>
