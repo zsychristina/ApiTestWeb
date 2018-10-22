@@ -25,5 +25,14 @@ module.exports = {
                 }
             }
         }
+    },
+    css: {
+        loaderOptions: {
+            css: {
+                localIdentName: process.env.node_env == 'production' ? "[hash]" : '[path]_[name]_[local]_[hash:base64:5]',
+                camelCase: 'only'
+            },
+            sass: {}
+        },
     }
 };

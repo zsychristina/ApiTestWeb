@@ -1,3 +1,8 @@
+export const REGISTERAPI = "/api/api/register";
+export const LOGINAPI = '/api/api/login';
+
+export const CASEADDAPI = "/api/api/cases/add";
+
 const baseDataApi = '/api/api/proGather/list';
 const getFuncAddressApi = '/api/api/func/getAddress';
 
