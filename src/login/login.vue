@@ -11,9 +11,7 @@
 
             <el-form-item>
                 <el-button type="primary" @click.native="submitForm()" size="medium" style="width: 100%">登录</el-button>
-                <!--<el-button type="primary"-->
-                <!--@click="centerDialogVisible = true" size="small">注册-->
-                <!--</el-button>-->
+                <!--<el-button type="primary" @click="centerDialogVisible = true" size="small">注册</el-button>-->
             </el-form-item>
         </el-form>
         <el-dialog
@@ -24,17 +22,16 @@
         >
             <el-form :model="userInfo">
 
-                <el-form-item label="名字" :label-width="userInfo.formLabelWidth">
+                <el-form-item label="名字" >
                     <el-input v-model="userInfo.name" auto-complete="off">
                     </el-input>
                 </el-form-item>
-                <el-form-item label="账号" :label-width="userInfo.formLabelWidth"
+                <el-form-item label="账号"
                               prop="num">
                     <el-input v-model.number="userInfo.username" auto-complete="off">
                     </el-input>
                 </el-form-item>
-                <el-form-item label="密码" :label-width="userInfo.formLabelWidth"
-                              prop="desc">
+                <el-form-item label="密码" prop="desc">
                     <el-input v-model="userInfo.password" auto-complete="off">
                     </el-input>
                 </el-form-item>
@@ -51,7 +48,6 @@
 
 <script>
     import * as types from '../store/types';
-    import {REGISTERAPI, LOGINAPI} from "../api.js";
 
     export default {
         name: 'test',
@@ -87,7 +83,7 @@
                 });
             },
             register() {
-                this.$axios.post(REGISTERAPI, {
+                this.$axios.post("api/api/register", {
                     'name': this.userInfo.name,
                     'username': this.userInfo.username,
                     'password': this.userInfo.password,
@@ -111,7 +107,7 @@
                 )
             },
             login() {
-                this.$axios.post(LOGINAPI, {
+                this.$axios.post("api/api/login", {
                     'username': this.userInfo.username,
                     'password': this.userInfo.password,
                 }).then((response) => {
