@@ -5,20 +5,25 @@
 </template>
 
 <script>
-    export default {}
+export default {};
 </script>
 
 <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-    }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
 
-    #app {
-        height: 100%;
-        width: 100%;
-        min-width: 900px;
-    }
-
+#app {
+  height: 100%;
+  width: 100%;
+  min-width: 900px;
+}
+.pagination {
+  float: right;
+  position: relative;
+  margin-right: 40px;
+}
 </style>
