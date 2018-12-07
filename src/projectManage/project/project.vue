@@ -18,23 +18,23 @@
 
         <el-tabs value="first" style="padding-left: 10px">
             <el-tab-pane label="项目列表" name="first" class="table_padding">
-                <el-table :data="tableData" stripe>
+                <el-table :data="tableData" stripe max-height="745">
                     <el-table-column
                             prop="id"
                             label="id"
                             width="80"
-                            max-height="745">
+                    >
                     </el-table-column>
                     <el-table-column
                             prop="name"
                             label="项目名称"
                             width="150">
                     </el-table-column>
-                    <!--<el-table-column-->
-                    <!--prop="host"-->
-                    <!--label="基础url1"-->
-                    <!--&gt;-->
-                    <!--</el-table-column>-->
+                    <el-table-column label="当前环境">
+                        <template slot-scope="scope">
+                            {{environmentShow(tableData[scope.$index]['choice'])}}
+                        </template>
+                    </el-table-column>
                     <!--<el-table-column-->
                     <!--prop="host_two"-->
                     <!--label="基础url2"-->
@@ -71,7 +71,6 @@
             </el-tab-pane>
         </el-tabs>
 
-
         <el-dialog title="项目配置" :visible.sync="projectData.modelFormVisible" width="40%">
             <el-tabs>
                 <el-tab-pane label="基础信息" style="margin-top: 10px">
@@ -81,9 +80,17 @@
                             </el-input>
                         </el-form-item>
                         <el-form-item label="负责人" :label-width="projectData.formLabelWidth">
-                            <el-input v-model="projectData.principal" size="small">
-                            </el-input>
+                            <el-select v-model="form.user" value-key="user_id">
+                                <el-option
+                                        v-for="item in userData"
+                                        :key="item.user_id"
+                                        :label="item.user_name"
+                                        :value="item">
+                                </el-option>
+                            </el-select>
                         </el-form-item>
+
+
                     </el-form>
                     <hr style="height:1px;border:none;border-top:1px solid rgb(241, 215, 215);margin-top: -10px"/>
                     <el-tabs v-model="environmentChoice" type="card">
@@ -159,25 +166,26 @@
                 </el-tab-pane>
 
                 <el-tab-pane label="公用变量" style="margin-top: 10px">
-                    <el-button type="primary" size="small" @click="addProjectVariable()">
+                    <span style="margin-left: 10px">变量信息</span>
+                    <el-button type="primary" size="mini" @click="addProjectVariable()">
                         添加
                     </el-button>
-                    <el-table :data="projectData.variable" stripe>
+                    <el-table :data="projectData.variable" stripe :show-header="false">
                         <el-table-column label="Key" header-align="center" minWidth="50">
                             <template slot-scope="scope">
-                                <el-input v-model="scope.row.key" size="medium">
+                                <el-input v-model="scope.row.key" size="small" placeholder="key">
                                 </el-input>
                             </template>
                         </el-table-column>
                         <el-table-column label="Value" header-align="center" minWidth="80">
                             <template slot-scope="scope">
-                                <el-input v-model="scope.row.value" size="medium">
+                                <el-input v-model="scope.row.value" size="small" placeholder="value">
                                 </el-input>
                             </template>
                         </el-table-column>
                         <el-table-column label="备注" header-align="center" width="150">
                             <template slot-scope="scope">
-                                <el-input v-model="scope.row.remark" size="medium">
+                                <el-input v-model="scope.row.remark" size="small" placeholder="备注">
                                 </el-input>
                             </template>
                         </el-table-column>
@@ -189,22 +197,22 @@
                             </template>
                         </el-table-column>
                     </el-table>
-                </el-tab-pane>
+                    <hr style="height:1px;border:none;border-top:1px solid rgb(241, 215, 215);"/>
 
-                <el-tab-pane label="请求头部" style="margin-top: 10px">
-                    <el-form :inline="true" class="demo-form-inline">
-                        <el-button type="primary" size="small" @click="addProjectHeader()">添加头部</el-button>
-                    </el-form>
-                    <el-table :data="projectData.header" stripe>
+                    <div style="margin-top: 10px">
+                        <span style="margin-left: 10px">头部信息</span>
+                        <el-button type="primary" size="mini" @click="addProjectHeader()">添加</el-button>
+                    </div>
+                    <el-table :data="projectData.header" stripe :show-header="false">
                         <el-table-column label="Key" header-align="center" minWidth="50">
                             <template slot-scope="scope">
-                                <el-input v-model="scope.row.key" size="medium">
+                                <el-input v-model="scope.row.key" size="small" placeholder="key">
                                 </el-input>
                             </template>
                         </el-table-column>
                         <el-table-column label="Value" header-align="center" minWidth="80">
                             <template slot-scope="scope">
-                                <el-input v-model="scope.row.value" size="medium">
+                                <el-input v-model="scope.row.value" size="small" placeholder="value">
                                 </el-input>
                             </template>
                         </el-table-column>
@@ -216,7 +224,10 @@
                             </template>
                         </el-table-column>
                     </el-table>
+
+
                 </el-tab-pane>
+
             </el-tabs>
 
             <div slot="footer" class="dialog-footer">
@@ -246,10 +257,15 @@
                 },
                 tableData: Array(),
                 total: 1,
+                userData: [],
                 currentPage: 1,
                 sizePage: 20,
                 form: {
                     projectName: null,
+                    user: {
+                        user_name: null,
+                        user_id: null,
+                    },
                 },
                 projectData: {
                     host: null,
@@ -286,6 +302,7 @@
                         if (this.messageShow(this, response)) {
                             this.tableData = response.data['data'];
                             this.total = response.data['total'];
+                            this.userData = response.data['userData'];
                         }
                     }
                 )
@@ -299,7 +316,7 @@
                 // this.projectData.host = null;
                 // this.projectData.hostTwo = null;
                 // this.projectData.hostThree = null;
-                // this.projectData.hostFour = null;
+                this.form.user = {};
                 this.projectData.principal = null;
                 this.projectData.header = Array();
                 this.projectData.variable = Array();
@@ -390,6 +407,7 @@
                     'hostFour': this.dealHostList(this.environment.environmentStandby),
                     'id': this.projectData.id,
                     'header': JSON.stringify(this.projectData.header),
+                    'userId':this.form.user.user_id,
                     'variable': JSON.stringify(this.projectData.variable),
                 }).then((response) => {
                         if (this.messageShow(this, response)) {
@@ -402,6 +420,8 @@
             ,
             editProject(id) {
                 this.$axios.post(this.$api.editProApi, {'id': id}).then((response) => {
+                        let index = this.userData.map(item => item.user_id).indexOf(response.data['data']['user_id']);
+                        this.form.user = this.userData[index];
                         this.projectData.projectName = response.data['data']['pro_name'];
                         this.projectData.principal = response.data['data']['principal'];
                         this.environmentChoice = response.data['data']['environment_choice'];
@@ -447,6 +467,20 @@
                 this.projectData.header.splice(i, 1);
             }
             ,
+            environmentShow(choice) {
+                if (choice === 'first') {
+                    return '测试环境'
+                }
+                else if (choice === 'second') {
+                    return '开发环境'
+                }
+                else if (choice === 'third') {
+                    return '线上环境'
+                }
+                else if (choice === 'fourth') {
+                    return '备用环境'
+                }
+            },
             delTableList(type, i) {
                 this.$confirm('删除url为影响到整体排序,接口引用是依据url的序号来得,请认真考虑一下?', '提示', {
                     confirmButtonText: '确定',

@@ -68,9 +68,9 @@
                                         :value="item">
                                 </el-option>
                             </el-select>
-                            <el-select v-model="caseData.funcAddress" clearable placeholder="请选择导入函数文件" size="small">
+                            <el-select v-model="caseData.funcAddress" multiple placeholder="请选择导入函数文件" size="small">
                                 <el-option
-                                        v-for="(item, key) in this.funcAddress"
+                                        v-for="item in this.funcAddress"
                                         :key="item['value']"
                                         :label="item['value']"
                                         :value="item['value']">
@@ -143,7 +143,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column
-                                label="用例名称"
+                                label="步骤名称"
                                 minWidth="50">
                             <template slot-scope="scope">
                                 <el-input v-model="caseData.apiCases[scope.$index]['case_name']">
@@ -330,7 +330,7 @@
                 caseData: {
                     id: '',
                     num: '',
-                    funcAddress: '',
+                    funcAddress: Array(),
                     modelFormVisible: false,
                     projectName: '',
                     variable: [],
@@ -373,7 +373,7 @@
                 this.caseData.times = '';
                 this.caseData.desc = '';
                 this.caseData.id = '';
-                this.caseData.funcAddress = '';
+                this.caseData.funcAddress = Array();
                 this.caseData.num = '';
                 this.caseData.modelFormVisible = true;
                 this.apiMsgVessel = [];
@@ -520,6 +520,7 @@
                 }).then((response) => {
                         this.caseData.variable = this.caseData.variable.concat(response.data['data']['variables']);
                         this.caseData.variable = JSON.parse(JSON.stringify(this.caseData.variable));
+
                         this.caseData.funcAddress = response.data['data']['func_address'];
                     }
                 )

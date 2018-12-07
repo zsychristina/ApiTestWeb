@@ -27,11 +27,12 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-        <!--</el-form>-->
+            <!--</el-form>-->
             <!--<el-form :inline="true" style="padding: 10px 20px -10px 10px;">-->
             <el-form-item label="接口编号" label-width="80px" prop="num" v-if="apiMsgData.id"
                           style="margin-bottom: 5px">
-                <el-input v-model.number="apiMsgData.num" placeholder="接口编号" size="small" style="width: 70px;text-align:center;">
+                <el-input v-model.number="apiMsgData.num" placeholder="接口编号" size="small"
+                          style="width: 70px;text-align:center;">
                 </el-input>
             </el-form-item>
             <el-form-item prop="name" style="margin-bottom: 5px">
@@ -178,10 +179,7 @@
                                         <el-input v-model="scope.row.value" size="mini" :disabled="true">
                                         </el-input>
                                     </el-col>
-                                    <el-col :span="1">
-                                        <p></p>
-                                    </el-col>
-                                    <el-col :span="2">
+                                    <el-col :span="2" style="padding-left:10px;">
                                         <el-upload
                                                 class="upload-demo"
                                                 action="/api/upload"
@@ -192,6 +190,11 @@
                                             </el-button>
                                         </el-upload>
                                     </el-col>
+                                    <!--<el-col :span="2" style="padding-left:20px;">-->
+                                    <!--<el-button size="mini" type="danger"-->
+                                    <!--@click="delFile(scope.$index)">删除文件-->
+                                    <!--</el-button>-->
+                                    <!--</el-col>-->
                                 </el-row>
                             </div>
                             <div v-else>
@@ -368,7 +371,7 @@
                     param: [{key: null, value: null}],
                     header: Array(),
                     variable: [],
-                    jsonVariable: "",
+                    jsonVariable: '',
                     extract: Array(),
                     validate: Array(),
                 },
@@ -399,9 +402,45 @@
                     });
                 }
             },
+
             fileChange(response, file, fileList) {
-                this.apiMsgData.variable[this.temp_num]['value'] = response['data'];
-                this.messageShow(this, response);
+                if (response['status'] === 0) {
+                    // this.$message({
+                    //     showClose: true,
+                    //     message: response['msg'],
+                    //     type: 'warning',
+                    // });
+                    this.$confirm('服务器已存在相同名字文件，是否覆盖?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        let form = new FormData();
+                        form.append("file", file.raw);
+                        form.append("skip", '1');
+                        this.$axios.post('/api/upload',form ).then((response) => {
+                                this.$message({
+                                    showClose: true,
+                                    message: response.data['msg'],
+                                    type: 'success',
+                                });
+                            this.apiMsgData.variable[this.temp_num]['value'] = response.data['data'];
+                            }
+                        );
+                    }).catch(() => {
+
+                    });
+                }
+                else {
+                    if (response['msg']) {
+                        this.$message({
+                            showClose: true,
+                            message: response['msg'],
+                            type: 'success',
+                        });
+                    }
+                    this.apiMsgData.variable[this.temp_num]['value'] = response['data'];
+                }
 
             },
             tempNum(i) {
@@ -413,7 +452,7 @@
                 this.apiMsgData.header = Array();
                 this.apiMsgData.variable = Array();
                 this.apiMsgData.param = Array();
-                this.apiMsgData.jsonVariable = "{}";
+                this.apiMsgData.jsonVariable = '';
                 this.apiMsgData.extract = Array();
                 this.apiMsgData.validate = Array();
                 this.apiMsgData.name = null;
@@ -428,16 +467,25 @@
                 this.form.module = this.module;
             },
             addApiMsg(messageClose = false) {
-                // test()
-                try {
-                    JSON.parse(this.apiMsgData.jsonVariable)
+                if (this.apiMsgData.jsonVariable) {
+                    try {
+                        JSON.parse(this.apiMsgData.jsonVariable)
+                    }
+                    catch (err) {
+                        this.$message({
+                            showClose: true,
+                            message: 'json格式错误',
+                            type: 'warning',
+                        });
+                        return
+                    }
                 }
-                catch (err) {
-                    this.$message({
-                        showClose: true,
-                        message: 'json格式错误',
-                        type: 'warning',
-                    });
+                if (!this.form.projectName) {
+                        this.$message({
+                            showClose: true,
+                            message: '请选择项目',
+                            type: 'warning',
+                        });
                     return
                 }
                 return this.$axios.post(this.$api.addApiApi, {
@@ -463,26 +511,27 @@
                     'validate': JSON.stringify(this.apiMsgData.validate)
                 }).then((response) => {
                         if (messageClose) {
-                            if (response.data['status'] === 0) {
-                                this.$message({
-                                    showClose: true,
-                                    message: response.data['msg'],
-                                    type: 'warning',
-                                });
-                                return false
-                            }
-                            else {
-                                this.apiMsgData.id = response.data['api_msg_id'];
-                                this.apiMsgData.num = response.data['num'];
-                                this.$emit('findApiMsg');
-                                return true
-                            }
+                            return response
+                            // if (response.data['status'] === 0) {
+                            //     this.$message({
+                            //         showClose: true,
+                            //         message: response.data['msg'],
+                            //         type: 'warning',
+                            //     });
+                            //     return false
+                            // }
+                            // else {
+                            //     this.apiMsgData.id = response.data['api_msg_id'];
+                            //     this.apiMsgData.num = response.data['num'];
+                            //     // this.$emit('findApiMsg');
+                            //     return true
+                            // }
                         }
                         else {
                             if (this.messageShow(this, response)) {
                                 this.apiMsgData.id = response.data['api_msg_id'];
                                 this.apiMsgData.num = response.data['num'];
-                                this.$emit('findApiMsg');
+                                // this.$emit('findApiMsg');
                                 return true
                             }
                         }
@@ -510,7 +559,13 @@
                         //     this.apiMsgData.variable = Array()
                         // }
                         this.apiMsgData.variable = response.data['data']['variable'];
-                        this.apiMsgData.jsonVariable = response.data['data']['json_variable'];
+                        if (!response.data['data']['json_variable']) {
+                            this.apiMsgData.jsonVariable = ''
+                        }
+                        else {
+                            this.apiMsgData.jsonVariable = response.data['data']['json_variable'];
+                        }
+
                         this.apiMsgData.desc = response.data['data']['desc'];
                         this.apiMsgData.funcAddress = response.data['data']['funcAddress'];
                         this.apiMsgData.upFunc = response.data['data']['up_func'];
@@ -530,8 +585,15 @@
             },
             saveAndRun() {
                 this.addApiMsg(true).then(res => {
-                    if (res) {
-                        this.apiTest([{'apiMsgId': this.apiMsgData.id, 'num': '1'}], false);
+                    if (res.data['status'] === 0) {
+                        this.$message({
+                            showClose: true,
+                            message: res.data['msg'],
+                            type: 'warning',
+                        });
+                    }
+                    else {
+                        this.$emit('apiTest', [{'apiMsgId': res.data['api_msg_id'], 'num': '1'}], false);
                     }
                 });
             },
@@ -599,34 +661,40 @@
                     this.apiMsgData.param.push({key: null, value: null});
                 }
             },
-            lastResult(){
-                this.$refs.resultFunc.lastResult();
-            }
-        },
+        }
+        ,
         computed: {
             monitorParam() {
                 return this.apiMsgData.param;
-            },
+            }
+            ,
             monitorUrl() {
                 return this.apiMsgData.url;
-            },
+            }
+            ,
             monitorMethod() {
                 return this.apiMsgData.method;
-            },
+            }
+            ,
             monitorVariable() {
                 return this.apiMsgData.variable;
-            },
+            }
+            ,
             monitorHeader() {
                 return this.apiMsgData.header;
-            },
+            }
+            ,
             monitorExtract() {
                 return this.apiMsgData.extract;
-            },
+            }
+            ,
             monitorValidate() {
                 return this.apiMsgData.validate;
-            },
+            }
+            ,
 
-        },
+        }
+        ,
         watch: {
             monitorParam: {
                 handler: function () {
@@ -660,9 +728,11 @@
                         this.apiMsgData.url = this.apiMsgData.url.split("?")[0]
                     }
 
-                },
+                }
+                ,
                 deep: true
-            },
+            }
+            ,
             monitorUrl(newValue, oldValue) {
                 if (!this.apiMsgData.url) {
                     this.apiMsgData.param = [{key: '', value: ''}];
@@ -693,12 +763,14 @@
                         }
                     }
                 }
-            },
+            }
+            ,
             monitorMethod(newValue, oldValue) {
                 if (newValue === 'GET') {
                     this.bodyShow = 'first'
                 }
-            },
+            }
+            ,
             monitorVariable: {
                 handler: function () {
                     if (this.apiMsgData.variable.length === 0) {
@@ -707,9 +779,11 @@
                     if (this.apiMsgData.variable[this.apiMsgData.variable.length - 1]['key'] || this.apiMsgData.variable[this.apiMsgData.variable.length - 1]['value']) {
                         this.addTableList('variable')
                     }
-                },
+                }
+                ,
                 deep: true
-            },
+            }
+            ,
             monitorExtract: {
                 handler: function () {
                     if (this.apiMsgData.extract.length === 0) {
@@ -718,9 +792,11 @@
                     if (this.apiMsgData.extract[this.apiMsgData.extract.length - 1]['key'] || this.apiMsgData.extract[this.apiMsgData.extract.length - 1]['value']) {
                         this.addTableList('extract')
                     }
-                },
+                }
+                ,
                 deep: true
-            },
+            }
+            ,
             monitorHeader: {
                 handler: function () {
                     if (this.apiMsgData.header.length === 0) {
@@ -729,9 +805,11 @@
                     if (this.apiMsgData.header[this.apiMsgData.header.length - 1]['key'] || this.apiMsgData.header[this.apiMsgData.header.length - 1]['value']) {
                         this.addTableList('header')
                     }
-                },
+                }
+                ,
                 deep: true
-            },
+            }
+            ,
             monitorValidate: {
                 handler: function () {
                     if (this.apiMsgData.validate.length === 0) {
@@ -740,13 +818,17 @@
                     if (this.apiMsgData.validate[this.apiMsgData.validate.length - 1]['key'] || this.apiMsgData.validate[this.apiMsgData.validate.length - 1]['value']) {
                         this.addTableList('validate')
                     }
-                },
+                }
+                ,
                 deep: true
-            },
+            }
+            ,
 
-        },
+        }
+        ,
         mounted() {
-        },
+        }
+        ,
     }
 </script>
 <style>

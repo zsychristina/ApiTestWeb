@@ -7,15 +7,15 @@
             <el-tabs>
                 <el-tab-pane label="接口信息" style="margin-top: 10px">
                     <el-form>
-                        <el-form-item label="用例名称"  prop="name" label-width="120px" >
+                        <el-form-item label="用例名称" prop="name" label-width="120px">
                             <el-input v-model="apiCaseData.name">
                             </el-input>
                         </el-form-item>
-                        <el-form-item label="up函数" label-width="120px" >
+                        <el-form-item label="up函数" label-width="120px">
                             <el-input v-model="apiCaseData.upFunc">
                             </el-input>
                         </el-form-item>
-                        <el-form-item label="down函数" label-width="120px" >
+                        <el-form-item label="down函数" label-width="120px">
                             <el-input v-model="apiCaseData.downFunc">
                             </el-input>
                         </el-form-item>
@@ -92,10 +92,10 @@
                             </codemirror>
                         </div>
                         <!--<el-input-->
-                                <!--type="textarea"-->
-                                <!--:rows="27"-->
-                                <!--placeholder="请输入内容"-->
-                                <!--v-module="apiCaseData.variable">-->
+                        <!--type="textarea"-->
+                        <!--:rows="27"-->
+                        <!--placeholder="请输入内容"-->
+                        <!--v-module="apiCaseData.variable">-->
                         <!--</el-input>-->
                     </div>
                     <el-table :data="apiCaseData.variable" size="mini" stripe
@@ -121,7 +121,7 @@
                                 <div v-if="scope.row.param_type === 'file'">
                                     <el-row>
                                         <el-col :span="17">
-                                            <el-input v-model="scope.row.value" size="medium">
+                                            <el-input v-model="scope.row.value" size="medium" :disabled="true">
                                             </el-input>
                                         </el-col>
                                         <el-col :span="1">
@@ -264,6 +264,7 @@
 
 <script>
     import {codemirror} from 'vue-codemirror-lite'
+
     export default {
         components: {
             codemirror,
@@ -294,7 +295,7 @@
                 paramTypes: ['string', 'file'],
                 paramVisible: false,
                 temp_num: '',
-                tempNum:'',
+                tempNum: '',
                 form: {
                     choiceTypeStatus: false,
                     choiceType: 'data',
@@ -306,7 +307,7 @@
                     downFunc: '',
                     statusCase: {variable: [], extract: [], validate: [], param: []},
                     variable: [{key: '', value: '', param_type: '', remark: ''}],
-                    json_variable:'[]',
+                    json_variable: '',
                     extract: [{key: '', value: ''}],
                     validate: [{key: '', value: '', comparator: ''}],
                     param: [{key: '', value: '', remark: ''}],
@@ -365,24 +366,62 @@
                 this.apiCaseData.validate.splice(i, 1);
             },
             fileChange(response, file, fileList) {
-                this.apiCaseData.variable[this.temp_num]['value'] = response['data'];
-                this.messageShow(this, response);
-            },
+                    if (response['status'] === 0) {
+                        // this.$message({
+                        //     showClose: true,
+                        //     message: response['msg'],
+                        //     type: 'warning',
+                        // });
+                        this.$confirm('服务器已存在相同名字文件，是否覆盖?', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }).then(() => {
+                            let form = new FormData();
+                            form.append("file", file.raw);
+                            form.append("skip", '1');
+                            this.$axios.post('/api/upload',form ).then((response) => {
+                                    this.$message({
+                                        showClose: true,
+                                        message: response.data['msg'],
+                                        type: 'success',
+                                    });
+                                    this.apiCaseData.variable[this.temp_num]['value'] = response.data['data'];
+                                }
+                            );
+                        }).catch(() => {
+
+                        });
+                    }
+                    else {
+                        if (response['msg']) {
+                            this.$message({
+                                showClose: true,
+                                message: response['msg'],
+                                type: 'success',
+                            });
+                        }
+                        this.apiCaseData.variable[this.temp_num]['value'] = response['data'];
+                    }
+
+                },
             tempNumTwo(i) {
                 this.temp_num = i;
             },
             sureConfigBtn() {
                 if (this.form.choiceType.toString() === 'json') {
-                    try {
-                        JSON.parse(this.apiCaseData.variable)
-                    }
-                    catch (err) {
-                        this.$message({
-                            showClose: true,
-                            message: 'json格式错误',
-                            type: 'warning',
-                        });
-                        return
+                    if (this.apiCaseData.json_variable) {
+                        try {
+                            JSON.parse(this.apiCaseData.json_variable)
+                        }
+                        catch (err) {
+                            this.$message({
+                                showClose: true,
+                                message: 'json格式错误',
+                                type: 'warning',
+                            });
+                            return
+                        }
                     }
                 }
                 if (this.apiCaseData.downFunc) {
@@ -408,7 +447,7 @@
                     });
                     return
                 }
-                this.apiCases[this.tempNum]['variable'] = this.apiCaseData.variable;
+                this.apiCases[this.tempNum]['json_variable'] = this.apiCaseData.json_variable;
                 this.paramVisible = false;
 
             },
@@ -422,7 +461,6 @@
         color: rgb(183, 40, 135);
         /*color: rgb(137, 21, 99);*/
     }
-
 
     .cm-s-default .cm-string {
         /*color: rgb(116,88,255);*/

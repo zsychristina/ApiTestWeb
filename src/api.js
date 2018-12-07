@@ -13,6 +13,7 @@ const findModuleApi = '/api/module/find';
 const addModuleApi = '/api/module/add';
 const editModuleApi = '/api/module/edit';
 const delModuleApi = '/api/module/del';
+const stickModuleApi = '/api/module/stick';
 
 const findConfigApi = '/api/config/find';
 const addConfigApi = '/api/config/add';
@@ -53,6 +54,7 @@ const configDataApi = '/api/config/data';
 
 
 const fileUploadingApi = '/api/upload';
+const checkFileApi = '/api/checkFile';
 const importApiApi = '/api/apiMsg/fileChange';
 
 const findFuncApi = '/api/func/find';
@@ -60,9 +62,20 @@ const createFuncApi = '/api/func/create';
 const checkFuncApi = '/api/func/check';
 const saveFuncApi = '/api/func/save';
 
+const findUserApi = '/api/user/find';
+const editUserApi = '/api/user/edit';
+const delUserApi = '/api/user/del';
+const changeStatusUserApi = '/api/user/changeStatus';
+
 export default {
     baseDataApi,
     getFuncAddressApi,
+    checkFileApi,
+
+    findUserApi,
+    editUserApi,
+    delUserApi,
+    changeStatusUserApi,
 
     findReportApi,
     delReportApi,
@@ -103,6 +116,7 @@ export default {
     addModuleApi,
     editModuleApi,
     delModuleApi,
+    stickModuleApi,
 
     findConfigApi,
     addConfigApi,

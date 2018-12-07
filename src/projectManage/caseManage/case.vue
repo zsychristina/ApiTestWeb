@@ -74,7 +74,7 @@
             </el-col>
             <el-col :span="21">
                     <el-tabs value="first" style="padding-left: 10px;padding-right:5px;">
-                        <el-tab-pane label="业务列表" name="first">
+                        <el-tab-pane label="用例列表" name="first">
                             <el-table
                                     ref="sceneMultipleTable"
                                     @selection-change="handleCaseSelection"
@@ -170,7 +170,7 @@
     import setEdit from './setEdit.vue'
     import caseEdit from './caseEdit.vue'
     import errorView from '../common/errorView.vue'
-    import result from '../apiManage/result.vue'
+    import result from '../apiMessage/result.vue'
 
     export default {
         components: {
@@ -224,6 +224,7 @@
             handleNodeClick(data) {
                 this.setTempData.setId = data['id'];
                 this.setTempData.name = data['label'];
+                this.casePage.currentPage = 1;
                 this.findCase();
             },
             querySearch(queryString, cb) {
@@ -232,7 +233,7 @@
             },
             findSuite() {
                 this.apiSuiteViewStatus = false;
-                this.$axios.post('/apiManage/apiManage/suite/find', {
+                this.$axios.post('/apiMessage/apiMessage/suite/find', {
                     'suiteName': this.form.caseName,
                     'modelName': this.form.modelName,
                     'projectName': this.form.apiMesProjectName,
@@ -283,10 +284,7 @@
                             this.form.projectName = response.data['user_pro']['pro_name'];
                             this.findSet();
                         }
-
                         this.allSetList = response.data['set_list'];
-
-
                     }
                 );
                 this.$axios.post(this.$api.getFuncAddressApi).then((response) => {

@@ -40,7 +40,7 @@
                             </template>
                             <el-menu-item-group>
                                 <el-menu-item index="/manage/projectManage">项目管理</el-menu-item>
-                                <el-menu-item index="/manage/modelManage">接口模块</el-menu-item>
+                                <!--<el-menu-item index="/manage/modelManage">接口模块</el-menu-item>-->
                                 <el-menu-item index="/manage/caseManage">接口信息</el-menu-item>
                                 <el-menu-item index="/manage/sceneConfig">业务配置</el-menu-item>
                                 <el-menu-item index="/manage/sceneManage">接口用例</el-menu-item>
@@ -53,21 +53,32 @@
                                 <span>报告管理</span>
                             </template>
                             <el-menu-item-group>
-                                <el-menu-item index="/manage/reportManage">测试报告</el-menu-item>
+                                    <el-menu-item index="/manage/reportManage">测试报告</el-menu-item>
                             </el-menu-item-group>
                             <el-menu-item-group>
                                 <el-menu-item index="/manage/taskManage">定时任务</el-menu-item>
                             </el-menu-item-group>
                         </el-submenu>
 
-                        <el-submenu index="4">
+                        <el-submenu index="5">
                             <template slot="title">
-                                <i class="el-icon-setting"></i>
+                                <i class="el-icon-time"></i>
                                 <span>其他程序</span>
                             </template>
                             <el-menu-item-group>
                                 <el-menu-item index="/manage/testTool">小工具</el-menu-item>
-                                <el-menu-item index="/manage/sqlCheck">数据库查询</el-menu-item>
+                            </el-menu-item-group>
+                        </el-submenu>
+
+                        <el-submenu index="4" v-show="role === '2'">
+                            <template slot="title">
+                                <i class="el-icon-setting"></i>
+                                <span>系统管理</span>
+                            </template>
+                            <el-menu-item-group >
+                                <el-menu-item index="/manage/userManage">用户管理</el-menu-item>
+
+
                                 <!--<el-menu-item index="/manage/batch">批量添加</el-menu-item>-->
                             </el-menu-item-group>
                         </el-submenu>
@@ -107,7 +118,10 @@
         data() {
             return {
                 navigationName:'/manage/projectManage',
-                collapsed:false
+                collapsed:false,
+                role:'',
+                userName:'',
+
             }
         },
         methods: {
@@ -115,6 +129,9 @@
                 this.collapsed = !this.collapsed;
             },
             closeNavigation(){
+                this.role = this.$store.state.roles;
+                this.userName = this.$store.state.userName;
+
                 this.navigationName = this.$route.path;
                 if(this.$route.path === '/manage/reportShow'){
                     this.collapsed = true;
